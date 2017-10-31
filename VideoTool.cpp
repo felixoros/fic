@@ -1,10 +1,18 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
 //#include <opencv2\highgui.h>
 #include "opencv2/highgui/highgui.hpp"
 //#include <opencv2\cv.h>
 #include "opencv2/opencv.hpp"
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#include <unistd.h>
 
 using namespace std;
 using namespace cv;
@@ -183,11 +191,50 @@ void detect_yellow(int v_min, int h_min){
 	inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), threshold);
 	if (useMorphOps)
 		morphOps(threshold);
-}*/ 
+}*/
+
+void createConnection(char *message){
+	int clientSocket;
+	char buffer[1024];
+	struct sockaddr_in serverAddr;
+	socklen_t addr_size;
+
+	/* 1) Internet domain 2) Stream socket 3) Default protocol (TCP in this case) */
+  clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+	/*---- Configure settings of the server address struct ----*/
+  /* Address family = Internet */
+  serverAddr.sin_family = AF_INET;
+  /* Set port number, using htons function to use proper byte order */
+  serverAddr.sin_port = htons(20232);
+  /* Set IP address to localhost */
+  serverAddr.sin_addr.s_addr = inet_addr("193.226.12.217");
+  /* Set all bits of the padding field to 0 */
+  memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
+  /*---- Connect the socket to the server using the address struct ----*/
+  addr_size = sizeof serverAddr;
+  int flag = connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size);
+	if( flag >= 0 ){
+		printf("Connection success.");
+		char msg[2] = "";
+
+			for(int i = 0; i < strlen(message); i++){
+				msg[0] = message[i];
+				sleep(1);
+				send(clientSocket, msg, strlen(msg), 0 );
+			}
+
+	} else{
+		printf("Connection failed.");
+	}
+}
 
 int main(int argc, char* argv[])
 {
 
+	//Create connection with socket
+	createConnection("bsffs");
+
+	/*
 	//some boolean variables for different functionality within this
 	//program
 	bool trackObjects = true;
@@ -215,7 +262,6 @@ int main(int argc, char* argv[])
 	//all of our operations will be performed within this loop
 
 	while (1) {
-
 
 		//store image to matrix
 		capture.read(cameraFeed);
@@ -257,6 +303,6 @@ int main(int argc, char* argv[])
 		//image will not appear without this waitKey() command
 		waitKey(30);
 	}
-
+	*/
 	return 0;
 }
