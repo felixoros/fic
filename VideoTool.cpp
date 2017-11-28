@@ -193,7 +193,7 @@ void detect_yellow(int v_min, int h_min){
 		morphOps(threshold);
 }*/
 
-void createConnection(char *message){
+void createConnection(char *message, int time){
 	int clientSocket;
 	char buffer[1024];
 	struct sockaddr_in serverAddr;
@@ -219,7 +219,9 @@ void createConnection(char *message){
 
 			for(int i = 0; i < strlen(message); i++){
 				msg[0] = message[i];
-				sleep(1);
+				if( time >= 0){
+					sleep(time);
+				}
 				send(clientSocket, msg, strlen(msg), 0 );
 			}
 
@@ -228,11 +230,72 @@ void createConnection(char *message){
 	}
 }
 
+void detectFront(int x, int y){
+	int xTmp = x, yTmp = y;
+	char front = "", send = "";
+
+	createConnection("f", 1);
+
+	if( x < xTmp ){
+		front += "left";
+		if( y < yTmp ){
+			front += " down ";		
+		} else if ( y > yTmp){
+			front += " up ";
+		}
+	}
+
+	else if ( x > xTmp ){
+		front += "right";
+		if( y < yTmp ){
+			front += " down ";		
+		} else if ( y > yTmp){
+			front += " up ";
+		}
+	}
+
+	else if ( y < yTmp ){
+		if ( x < xTmp ){
+			front += "left";
+		} else if ( x > xTp){
+			front += "right";
+		}
+		front += " down ";
+	}
+
+	else if ( y > yTmp ){
+		if ( x < xTmp ){
+			front += "left";
+		} else if ( x > xTp){
+			front += "right";
+		}
+		front += " up ";
+	}
+
+	return front;
+}
+
+void calibrate(){
+	char ok = 1;
+	while( ok == 1 ){
+		detectFront(x,y);
+		createConnection();
+	}
+}
+
 void move(int sx, int sy, int dx, int dy){
-
+	char mv;
 	//move straight	
-	if( (sx == dx) || (sy == dy) ){
+	while( (sx == dx) || (sy == dy) ){
+		if( sy < dy ){
+			
+		}
+		 else if ( sx > sx ){
 
+		}
+			mv = "";
+		mv = "f";
+		createConnection( mv );
 	}	
 
 	if( sx < dx){
