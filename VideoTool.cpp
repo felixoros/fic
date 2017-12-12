@@ -220,7 +220,7 @@ void createConnection(char *message, int time){
 			for(int i = 0; i < strlen(message); i++){
 				msg[0] = message[i];
 				if( time >= 0){
-					sleep(time);
+					usleep(time);
 				}
 				send(clientSocket, msg, strlen(msg), 0 );
 			}
@@ -275,45 +275,78 @@ void detectFront(int x, int y){
 	return front;
 }
 
-void calibrate(){
+void calibrate(int x1, int y1, int x2, int y2){
 	char ok = 1;
+	char front = "", transmit = "";
+	int time = 0;
 	while( ok == 1 ){
-		detectFront(x,y);
-		createConnection();
-	}
-}
+		front = detectFront(x1,y1);
 
-void move(int sx, int sy, int dx, int dy){
-	char mv;
-	//move straight	
-	while( (sx == dx) || (sy == dy) ){
-		if( sy < dy ){
-			
-		}
-		 else if ( sx > sx ){
-
-		}
-			mv = "";
-		mv = "f";
-		createConnection( mv );
-	}	
-
-	if( sx < dx){
-		if(sy < dy){
-			
-		}
-		else{
-		
-		}
-	}
-	
-	if( sx > dx){
-		if(sy < dy){
-			
-		}
-		else{
-		
-		}
+		if(x1 < x2){
+			if(y1 < y2){
+				if( strcmp(front, "left down") == 0){
+					transmit = "l";
+					time = 1/2;	
+				} else if ( strcmp(front, "left up") == 0){
+					transmit = "l";
+					time = 1;
+				} else if( strcmp(front, "right down") == 0){
+					transmit = "r";
+					time = 1/2;
+				} else if( strcmp(front, "right up") == 0){
+					transmit = "f";
+					time = 1 ;
+				}
+			}
+			else{
+				if( strcmp(front, "left down") == 0){
+					transmit = "r";
+					time = 1;	
+				} else if ( strcmp(front, "left up") == 0){
+					transmit = "r";
+					time = 1/2;
+				} else if( strcmp(front, "right down") == 0){
+					transmit = "l";
+					time = 1/2;
+				} else if( strcmp(front, "right up") == 0){
+					transmit = "f";
+					time = 1 ;
+				}
+			}
+		} else if(x1 > x2){
+			if(y1 < y2){
+				if( strcmp(front, "left down") == 0){
+					transmit = "f";
+					time = 1;	
+				} else if ( strcmp(front, "left up") == 0){
+					transmit = "l";
+					time = 1/2;
+				} else if( strcmp(front, "right down") == 0){
+					transmit = "r";
+					time = 1/2;
+				} else if( strcmp(front, "right up") == 0){
+					transmit = "l";
+					time = 1;
+				}
+			}
+			else{
+				if( strcmp(front, "left down") == 0){
+					transmit = "r";
+					time = 1/2;	
+				} else if ( strcmp(front, "left up") == 0){
+					transmit = "f";
+					time = 1;
+				} else if( strcmp(front, "right down") == 0){
+					transmit = "l";
+					time = 1;
+				} else if( strcmp(front, "right up") == 0){
+					transmit = "l";
+					time = 1/2;
+				}
+			}
+		}		
+		//move the robot
+		createConnection(transmit, time);
 	}
 }
 
@@ -381,7 +414,7 @@ int main(int argc, char* argv[])
 		/*
 			
 		*/
-
+		calibrate(x1,y1,x2,y2);
 		//V_MIN = 265;	H_MIN = 162;
 		//inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), threshold);
 		//perform morphological operations on thresholded image to eliminate noise
